@@ -52,7 +52,7 @@ python -m CAPS.train \
   --output_dir checkpoints/caps
 ```
 
-The best prompt checkpoint is saved at `checkpoints/caps/best/image_conditioned_prompt.pt`. Use `--help` to see training options such as `--epochs`, `--batch_size`, and `--cultural_span_weight`.
+The best prompt checkpoint is saved at `checkpoints/caps/best/image_conditioned_prompt.pt`.
 
 ## Evaluation
 
@@ -69,7 +69,7 @@ python -m eval.evaluate \
   --output results/cvqa_caps.json
 ```
 
-For the optional LLM judge, attach the bundled human references and run the judge with Ollama:
+For the LLM judge, add the human reference captions provided in `eval/human_metrics/HumanCaptions/` and run the judge with Ollama:
 
 ```bash
 python -m eval.prepare_references \
@@ -86,4 +86,4 @@ python -m eval.evaluate \
   --output results/cvqa_caps_judged.json
 ```
 
-Use the corresponding dataset name for GD-VCR (`gdvcr`) or GeoDE (`geode`). Automatic metrics additionally require LongCLIP, its checkpoint, and RAM tags.
+Use the corresponding dataset name for GD-VCR (`gdvcr`) or GeoDE (`geode`). Automatic metrics additionally require LongCLIP and RAM tags.
