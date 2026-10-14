@@ -18,13 +18,12 @@ Training uses a CUDA GPU and downloads the default LLaVA backbone (`llava-hf/lla
 
 ## Data preparation
 
-The datasets and images are not included. Download CulturalGROUND, place its JSON and images under `data/CulturalGROUND/`, and supply a JSON dictionary of target countries (for example, `{"China": {"aliases": []}}`). Run these commands from the repository root; adjust paths to your files:
+The datasets and images are not included. Download CulturalGROUND, place its JSON and images under `data/CulturalGROUND/`. Run these commands from the repository root; adjust paths to your files:
 
 ```bash
 python -m data.generate_captions \
   --source-json data/CulturalGROUND/CulturalGround-OE-Filtered-14M.json \
   --images-root data \
-  --countries-json data/countries.json \
   --output-dir data/positive_captions
 
 python -m data.split \
