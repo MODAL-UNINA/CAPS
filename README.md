@@ -41,7 +41,7 @@ python -m data.generate_negatives \
   --output_json data/splits/val_sampled.json
 ```
 
-The final split files contain the positive captions and generated `negative_caption` fields. CAPS skips records for which negative generation failed.
+The final split files contain the positive captions and generated `negative_caption` fields.
 
 ## Training CAPS
 
