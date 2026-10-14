@@ -77,8 +77,7 @@ class VLMNegativeGenerator:
         self,
         model_name: str,
         base_url: str,
-        temperature: float = 0.0,
-        num_predict: int = 512,
+        temperature: float = 0.0
     ) -> None:
         self.model_name = model_name
 
@@ -86,7 +85,6 @@ class VLMNegativeGenerator:
             model=model_name,
             base_url=base_url,
             temperature=temperature,
-            num_predict=num_predict,
         )
 
     def generate(
@@ -455,12 +453,6 @@ def parse_args() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "--num_predict",
-        type=int,
-        default=512,
-    )
-
-    parser.add_argument(
         "--max_image_side",
         type=int,
         default=MAX_IMAGE_SIDE,
@@ -500,7 +492,6 @@ def main() -> None:
         model_name=args.ollama_model,
         base_url=args.ollama_base_url,
         temperature=args.temperature,
-        num_predict=args.num_predict,
     )
 
     if args.input_json is not None:
