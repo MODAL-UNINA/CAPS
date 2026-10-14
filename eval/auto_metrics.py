@@ -7,7 +7,6 @@ import torch
 from PIL import Image
 from nltk.corpus import wordnet as wn
 
-clip = None
 longclip = None
 
 
@@ -151,7 +150,7 @@ class Metrics:
         if str(repo) not in sys.path:
             sys.path.insert(0, str(repo))
         self.longclip = importlib.import_module(module)
-        self.model, self.preprocess = self.longclip.load(str(checkpoint), device=device)
+        self.model, self.preprocess = self.longclip.load(str(checkpoint), device=self.device)
         self.model.eval()
 
     def score(self, image, caption, tags):
