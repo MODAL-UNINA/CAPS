@@ -162,9 +162,6 @@ def build_caption_token_span_mask(
 
     caption_ids = [int(token_id) for token_id in caption_ids]
 
-    # The normal case is an exact subsequence match. We also try caption
-    # tokenization without the leading whitespace as a fallback because some
-    # tokenizer configurations handle the first token slightly differently.
     start_idx = find_subsequence(
         full_input_ids,
         caption_ids,
@@ -330,16 +327,6 @@ class ImageConditionedPromptLlavaCulturalSpan(ImageConditionedPromptLlava):
         """
         Mean token log-probability restricted to the cultural span.
 
-        Memory-efficient implementation:
-        for each selected span token we compute
-
-            log p(token) = logit[token] - logsumexp(all_vocab_logits)
-
-        instead of materializing a full ``log_softmax`` tensor of shape
-        ``[batch, sequence, vocabulary]``. This is important for LLaVA-7B
-        because the vocabulary dimension is large and the span itself is
-        usually short.
-
         Returns:
             scores: [batch]
             valid: [batch] bool, indicating whether at least one span token
@@ -376,8 +363,6 @@ class ImageConditionedPromptLlavaCulturalSpan(ImageConditionedPromptLlava):
             )
             return scores, valid
 
-        # Exact target-token log probability without constructing
-        # [num_selected_tokens, vocab] log-softmax output.
         target_logits = selected_logits.gather(
             dim=-1,
             index=selected_labels.unsqueeze(-1),
@@ -795,18 +780,7 @@ def train(args: argparse.Namespace) -> None:
         compute_dtype=torch.bfloat16,
         device_map="cuda:0",
     )
-    n_trainable = sum(
-    p.numel() for p in model.parameters()
-    if p.requires_grad
-    )
-
-    n_prompt = sum(
-        p.numel() for p in model.prompt_module.parameters()
-    )
-
-    print(f"Trainable parameters: {n_trainable:,}")
-    print(f"Prompt module parameters: {n_prompt:,}")
-    # Trainable prompt module in float32 for optimizer stability.
+    
     model.prompt_module.to(
         device=model.backbone_device,
         dtype=torch.float32,
