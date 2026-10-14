@@ -23,7 +23,7 @@ PROMPT_OUTPUT_DIR = Path('checkpoints/prompt_tuning')
 PREFIX_OUTPUT_DIR = Path('checkpoints/prefix_tuning')
 CAPS_OUTPUT_DIR = Path('checkpoints/caps')
 CULTURAL_WORDS_DIR = PROJECT_ROOT / 'eval' / 'cultural_words'
-CULTURAL_WORDS_FILE = PROJECT_ROOT / 'eval' / 'all_cultural_words.txt'
+CULTURAL_WORDS_FILE = PROJECT_ROOT / 'eval' / 'cultural_words' / 'all_cultural_words.txt'
 HUMAN_CAPTIONS_DIR = PROJECT_ROOT / 'eval' / 'human_metrics' / 'HumanCaptions'
 
 
