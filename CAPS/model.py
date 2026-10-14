@@ -156,7 +156,6 @@ class ImageConditionedPromptLlava(FrozenVisionMixin, nn.Module):
         )
         state_dict = checkpoint.get("state_dict", checkpoint)
 
-        # Existing static checkpoints save `embedding`; tolerate full names too.
         candidate_keys = (
             "embedding",
             "soft_prompt.embedding",
