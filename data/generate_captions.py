@@ -16,7 +16,7 @@ from ollama import Client
 from tqdm import tqdm
 from utils.config import (DEFAULT_IMAGES_ROOT, DEFAULT_SOURCE_JSON, POSITIVE_OUTPUT_DIR,
                           STYLE_WEIGHTS, CAPTION_STYLES, CAPTION_SYSTEM_PROMPT,
-                          CAPTION_MODEL, OLLAMA_BASE_URL, DEFAULT_SEED)
+                          CAPTION_MODEL, OLLAMA_BASE_URL, DEFAULT_SEED, CULTURALGROUND_COUNTRIES)
 from utils.utils import (
     atomic_write_json,
     normalize_image_path,
@@ -175,8 +175,6 @@ def parse_args() -> argparse.Namespace:
         help="Optional debugging limit applied only after selection.",
     )
 
-    parser.add_argument("--countries-json", type=Path, required=True,
-                        help="JSON mapping canonical country names to optional aliases.")
     args = parser.parse_args()
 
     if args.target_per_country <= 0:
@@ -209,57 +207,14 @@ def normalize_for_match(value: str) -> str:
     return re.sub(r"_+", "_", value).strip("_")
 
 
-def load_country_dictionary(
-    path: Path,
-) -> tuple[dict[str, Any], list[tuple[str, str]]]:
-    """
-    Returns:
-      raw_dict,
-      alias_pairs: [(normalized_alias, canonical_country), ...]
-
-    Aliases are sorted longest-first to reduce overlap problems such as
-    "Guinea" vs "Equatorial Guinea".
-    """
-    data = json.loads(path.read_text(encoding="utf-8"))
-    if not isinstance(data, dict) or not data:
-        raise ValueError(
-            f"{path} must contain a non-empty JSON dictionary."
-        )
-
-    alias_pairs: list[tuple[str, str]] = []
-
-    for canonical_country, metadata in data.items():
-        canonical_country = str(canonical_country).strip()
-        if not canonical_country:
-            continue
-
-        aliases = [canonical_country]
-
-        if isinstance(metadata, dict):
-            raw_aliases = metadata.get("aliases", [])
-            if isinstance(raw_aliases, str):
-                raw_aliases = [raw_aliases]
-            if isinstance(raw_aliases, list):
-                aliases.extend(
-                    str(alias).strip()
-                    for alias in raw_aliases
-                    if str(alias).strip()
-                )
-
-        seen_local: set[str] = set()
-        for alias in aliases:
-            normalized = normalize_for_match(alias)
-            if normalized and normalized not in seen_local:
-                alias_pairs.append((normalized, canonical_country))
-                seen_local.add(normalized)
-
-    # Longer aliases first, then lexical for deterministic behavior.
-    alias_pairs.sort(key=lambda item: (-len(item[0]), item[0], item[1]))
-
-    if not alias_pairs:
-        raise ValueError("No valid country names/aliases found.")
-
-    return data, alias_pairs
+def build_country_alias_pairs() -> list[tuple[str, str]]:
+    """Match official CulturalGround folder slugs to canonical country names."""
+    pairs = [
+        (normalize_for_match(country), country)
+        for country in CULTURALGROUND_COUNTRIES
+    ]
+    pairs.sort(key=lambda item: (-len(item[0]), item[0], item[1]))
+    return pairs
 
 
 def detect_country_from_image_path(
@@ -385,7 +340,6 @@ class SQLiteDeduplicator:
 
 def select_reproducible_subset(
     source_json: Path,
-    countries_json: Path,
     output_dir: Path,
     target_per_country: int,
     replacement_pool_multiplier: float,
@@ -394,8 +348,9 @@ def select_reproducible_subset(
     dedup_db: Path,
     dedup_commit_every: int,
 ) -> tuple[dict[str, list[dict[str, Any]]], dict[str, Any]]:
-    country_dict, alias_pairs = load_country_dictionary(countries_json)
-    canonical_countries = list(country_dict.keys())
+  
+    canonical_countries = list(CULTURALGROUND_COUNTRIES)
+    alias_pairs = build_country_alias_pairs()
 
     # We select a primary target pool plus deterministic reserve candidates.
     # The reserve is used only if a selected image cannot be captioned.
@@ -506,7 +461,7 @@ def select_reproducible_subset(
 
     manifest = {
         "source_json": str(source_json),
-        "countries_json": str(countries_json),
+        "country_registry": "utils.config.CULTURALGROUND_COUNTRIES",
         "target_per_country": target_per_country,
         "replacement_pool_multiplier": replacement_pool_multiplier,
         "replacement_pool_size_per_country": pool_size,
@@ -519,7 +474,7 @@ def select_reproducible_subset(
         "language_filter": "sample['language'] == 'en' (case-insensitive)",
         "country_detection_rule": (
             "country detected only from normalized image path using country "
-            "dictionary keys and optional aliases; longest unambiguous match wins"
+            "names from the built-in 42-country list; longest unambiguous match wins"
         ),
         "sampling_rule": (
             "uniform reservoir sampling independently per country with "
@@ -1106,7 +1061,6 @@ def main() -> None:
 
         selected_by_country, manifest = select_reproducible_subset(
             source_json=args.source_json,
-            countries_json=args.countries_json,
             output_dir=args.output_dir,
             target_per_country=args.target_per_country,
             replacement_pool_multiplier=args.replacement_pool_multiplier,
