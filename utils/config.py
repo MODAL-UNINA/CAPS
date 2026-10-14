@@ -50,6 +50,53 @@ VAL_SPLIT = 'val_sampled'
 MAX_IMAGE_SIDE = 2048
 
 
+# Official CulturalGround country names; folder slugs are their normalized names.
+CULTURALGROUND_COUNTRIES = (
+    'Bangladesh',
+    'Brazil',
+    'Bulgaria',
+    'China',
+    'Czechia',
+    'Egypt',
+    'Ethiopia',
+    'France',
+    'Germany',
+    'Greece',
+    'India',
+    'Indonesia',
+    'Iran',
+    'Ireland',
+    'Israel',
+    'Italy',
+    'Japan',
+    'Kenya',
+    'Malaysia',
+    'Mexico',
+    'Mongolia',
+    'Netherlands',
+    'Nigeria',
+    'Norway',
+    'Pakistan',
+    'Poland',
+    'Portugal',
+    'Romania',
+    'Russia',
+    'Rwanda',
+    'Saudi Arabia',
+    'Singapore',
+    'South Korea',
+    'Spain',
+    'Sri Lanka',
+    'Taiwan',
+    'Tanzania',
+    'Thailand',
+    'Turkey',
+    'Ukraine',
+    'United Kingdom',
+    'Vietnam',
+)
+
+
 # ============================================================
 # TRAINING HYPERPARAMETERS
 # ============================================================
