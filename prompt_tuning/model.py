@@ -135,8 +135,7 @@ class StaticPromptLlava(FrozenVisionMixin, nn.Module):
             ):
                 raise ValueError(
                     "prompt_position='after_bos' requires BOS as the first token "
-                    "of every example. Check padding and tokenization, or use "
-                    "--prompt_position prepend to reproduce the previous wrapper."
+                    "of every example.
                 )
             split = 1
         else:
