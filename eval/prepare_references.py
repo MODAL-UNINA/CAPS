@@ -1,4 +1,3 @@
-"""Convert human annotation CSVs and attach three references to saved captions."""
 import argparse
 import csv
 import json
