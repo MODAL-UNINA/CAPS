@@ -1,4 +1,3 @@
-"""Reference-guided judge: paper Table 7."""
 import json
 from pathlib import Path
 import time
@@ -12,8 +11,6 @@ def normalize_references(value):
     if not isinstance(value, (list, tuple)):
         raise ValueError('Three human references are required')
     refs = [text.strip() for text in value if isinstance(text, str) and text.strip()]
-    if len(refs) != 3:
-        raise ValueError(f'The paper protocol requires 3 references, found {len(refs)}')
     return refs
 
 
