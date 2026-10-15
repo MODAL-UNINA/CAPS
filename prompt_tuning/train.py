@@ -67,12 +67,11 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--random_init", action=argparse.BooleanOptionalAction, default=True,
-        help="Use random PEFT initialization, as in the original version.",
+        help="Use random PEFT initialization.",
     )
     parser.add_argument(
         "--prompt_position", choices=["after_bos", "prepend"],
         default="prepend",
-        help="after_bos keeps BOS at position 0; prepend reproduces the previous version.",
     )
     parser.add_argument(
         "--debug_first_batch", action=argparse.BooleanOptionalAction,
@@ -270,7 +269,6 @@ def main() -> None:
         seed=args.seed,
         data_seed=args.seed,
         save_safetensors=True,
-        # Use the standard Trainer setting; do not override parameters from the batch.
     )
 
     callbacks = []
